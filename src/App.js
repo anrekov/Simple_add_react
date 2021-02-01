@@ -1,25 +1,44 @@
-import logo from './logo.svg';
+import React from 'react';
+import { Add } from './components/Add';
+import { News } from './components/News';
+// import newsData from './data/newsData';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    news: null,
+    isLoading: false,
+  };
+  componentDidMount() {
+    this.setState({ isLoading: true })
+    fetch('http://localhost:3000/data/newsData.json')
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        setTimeout(() => {
+          this.setState({ isLoading: false, news: data })
+        }, 1000)
+
+      })
+  }
+  handleAddNews = data => {
+    const nextNews = [data, ...this.state.news]
+    this.setState({ news: nextNews })
+  };
+
+  render() {
+    const { news, isLoading } = this.state;
+
+    return (
+      <>
+        <Add onAddNews={this.handleAddNews} />
+        <h3>Новости</h3>
+        {isLoading && <p>Загружаю...</p>}
+        {Array.isArray(news) && <News data={news} />}
+      </>
+    )
+  }
 }
 
 export default App;
